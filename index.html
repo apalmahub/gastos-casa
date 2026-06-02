@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finanzas Familiares | Control de Gastos</title>
+    
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Estilos de la aplicación -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-area">
+                    <div class="logo-icon">
+                        <i data-lucide="wallet"></i>
+                    </div>
+                    <div>
+                        <h1>FamiliaFin</h1>
+                        <span class="subtitle">Finanzas Compartidas</span>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-tab="dashboard">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-btn" data-tab="transactions">
+                    <i data-lucide="arrow-left-right"></i>
+                    <span>Transacciones</span>
+                </button>
+                <button class="nav-btn" data-tab="reports">
+                    <i data-lucide="file-text"></i>
+                    <span>Reportes PDF</span>
+                </button>
+                <button class="nav-btn" data-tab="settings">
+                    <i data-lucide="settings"></i>
+                    <span>Configuración</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="quick-profile">
+                    <div class="avatar-group">
+                        <span class="avatar m1-color" id="avatar-1">M1</span>
+                        <span class="avatar m2-color" id="avatar-2">M2</span>
+                        <span class="avatar m3-color hidden" id="avatar-3">M3</span>
+                        <span class="avatar m4-color hidden" id="avatar-4">M4</span>
+                    </div>
+                    <div class="profile-info">
+                        <span class="profile-title" id="profile-title-text">Hogar Activo</span>
+                        <span class="profile-status" id="member-count-text">2 Integrantes</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top bar -->
+            <header class="top-bar">
+                <div class="page-title-section">
+                    <h2 id="current-tab-title">Resumen de Cuenta</h2>
+                    <p class="text-muted" id="current-tab-desc">Control general de aportes, ingresos y gastos familiares.</p>
+                </div>
+                <div class="top-bar-actions">
+                    <button class="btn btn-primary" id="btn-open-transaction-modal">
+                        <i data-lucide="plus-circle"></i>
+                        <span>Nueva Operación</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- TAB: Dashboard -->
+            <section class="tab-content active" id="tab-dashboard">
+                <!-- Metrics Summary Cards -->
+                <div class="metrics-grid">
+                    <div class="metric-card balance">
+                        <div class="card-glow"></div>
+                        <div class="metric-header">
+                            <span class="card-label">Balance Neto Familiar</span>
+                            <div class="card-icon-wrapper">
+                                <i data-lucide="scale"></i>
+                            </div>
+                        </div>
+                        <div class="metric-value" id="balance-neto">$0.00</div>
+                        <div class="metric-footer text-success" id="balance-status">
+                            <i data-lucide="trending-up"></i>
+                            <span>Finanzas Saludables</span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card income">
+                        <div class="metric-header">
+                            <span class="card-label">Total Entradas (Ingresos)</span>
+                            <div class="card-icon-wrapper">
+                                <i data-lucide="arrow-down-left"></i>
+                            </div>
+                        </div>
+                        <div class="metric-value" id="total-ingresos">$0.00</div>
+                        <div class="metric-footer" id="ingresos-count">
+                            <span>0 transacciones</span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card expense">
+                        <div class="metric-header">
+                            <span class="card-label">Total Salidas (Gastos)</span>
+                            <div class="card-icon-wrapper">
+                                <i data-lucide="arrow-up-right"></i>
+                            </div>
+                        </div>
+                        <div class="metric-value" id="total-gastos">$0.00</div>
+                        <div class="metric-footer" id="gastos-count">
+                            <span>0 transacciones</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contributors Breakdown -->
+                <div class="contributors-section">
+                    <h3 class="section-title">Aportes y Gastos por Integrante</h3>
+                    <div class="contributors-grid" id="contributors-cards-container">
+                        <!-- Dynamic contributor cards rendered by JS -->
+                    </div>
+                </div>
+
+                <!-- Charts & History Grid -->
+                <div class="dashboard-grid">
+                    <!-- Chart 1: Expense by Category -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h4>Gastos por Categoría</h4>
+                            <span class="text-muted">Distribución de salidas</span>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Chart 2: Income vs Expense by Contributor -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h4>Flujo de Caja por Miembro</h4>
+                            <span class="text-muted">Aportes vs. Gastos individuales</span>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="memberComparisonChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions Panel -->
+                <div class="recent-panel">
+                    <div class="panel-header">
+                        <h3>Últimas Operaciones</h3>
+                        <button class="btn btn-text" id="btn-see-all-transactions">
+                            Ver todas <i data-lucide="arrow-right"></i>
+                        </button>
+                    </div>
+                    <div class="table-container shadow-sm">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Integrante</th>
+                                    <th>Tipo</th>
+                                    <th>Categoría</th>
+                                    <th>Descripción</th>
+                                    <th>Monto</th>
+                                    <th class="actions-col">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-transactions-tbody">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: Transactions -->
+            <section class="tab-content" id="tab-transactions">
+                <!-- Filters Bar -->
+                <div class="filters-bar">
+                    <div class="search-box">
+                        <i data-lucide="search"></i>
+                        <input type="text" id="search-description" placeholder="Buscar por descripción...">
+                    </div>
+                    
+                    <div class="filters-row">
+                        <div class="filter-group">
+                            <label for="filter-type">Tipo</label>
+                            <select id="filter-type">
+                                <option value="all">Todos</option>
+                                <option value="income">Entrada (Ingreso)</option>
+                                <option value="expense">Salida (Gasto)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="filter-member">Integrante</label>
+                            <select id="filter-member">
+                                <option value="all">Todos</option>
+                                <option value="1" id="filter-opt-m1">Miembro 1</option>
+                                <option value="2" id="filter-opt-m2">Miembro 2</option>
+                                <option value="3" id="filter-opt-m3">Miembro 3</option>
+                                <option value="4" id="filter-opt-m4" class="hidden">Miembro 4</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label for="filter-category">Categoría</label>
+                            <select id="filter-category">
+                                <option value="all">Todas</option>
+                                <!-- Categories dynamically loaded -->
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label for="filter-date">Período</label>
+                            <select id="filter-date">
+                                <option value="all">Todo el Historial</option>
+                                <option value="this-month">Este Mes</option>
+                                <option value="last-month">Mes Anterior</option>
+                                <option value="last-30">Últimos 30 días</option>
+                                <option value="custom">Rango Personalizado</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group hidden" id="filter-custom-dates">
+                            <label>Desde / Hasta</label>
+                            <div class="date-range-inputs">
+                                <input type="date" id="filter-date-start" class="form-input" style="padding: 8px 10px;">
+                                <input type="date" id="filter-date-end" class="form-input" style="padding: 8px 10px;">
+                            </div>
+                        </div>
+
+                        <div class="filter-actions">
+                            <button class="btn btn-secondary-icon" id="btn-clear-filters" title="Limpiar Filtros">
+                                <i data-lucide="rotate-ccw"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transactions Main Table -->
+                <div class="table-container shadow-sm main-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Integrante</th>
+                                <th>Tipo</th>
+                                <th>Categoría</th>
+                                <th>Descripción</th>
+                                <th>Notas</th>
+                                <th>Monto</th>
+                                <th class="actions-col">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="all-transactions-tbody">
+                            <!-- Dynamic rows -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-pagination-info" id="table-pagination-info">
+                    Mostrando 0 transacciones.
+                </div>
+            </section>
+
+            <!-- TAB: Reports -->
+            <section class="tab-content" id="tab-reports">
+                <div class="report-settings-grid">
+                    <!-- Report controls -->
+                    <div class="report-control-card shadow-sm">
+                        <h3>Configuración del Reporte</h3>
+                        <p class="text-muted">Define los parámetros del reporte PDF a generar.</p>
+                        
+                        <form id="report-generator-form" class="standard-form">
+                            <div class="form-group">
+                                <label for="report-period">Período de Análisis</label>
+                                <select id="report-period" class="form-input">
+                                    <option value="this-month">Mes Actual</option>
+                                    <option value="last-month">Mes Anterior</option>
+                                    <option value="all">Todo el Historial</option>
+                                    <option value="custom">Rango Personalizado</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group hidden" id="report-custom-dates">
+                                <label>Rango de Fechas</label>
+                                <div class="date-range-inputs" style="display: flex; gap: 8px;">
+                                    <input type="date" id="report-date-start" class="form-input" style="flex: 1;">
+                                    <input type="date" id="report-date-end" class="form-input" style="flex: 1;">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="report-contributor">Filtrar por Integrante</label>
+                                <select id="report-contributor" class="form-input">
+                                    <option value="all">Todos los Integrantes</option>
+                                    <option value="1" id="report-opt-m1">Miembro 1</option>
+                                    <option value="2" id="report-opt-m2">Miembro 2</option>
+                                    <option value="3" id="report-opt-m3">Miembro 3</option>
+                                    <option value="4" id="report-opt-m4" class="hidden">Miembro 4</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="report-title">Título del Reporte</label>
+                                <input type="text" id="report-title" class="form-input" value="Reporte de Gastos Familiares" placeholder="Ej. Gastos de Mayo 2026">
+                            </div>
+
+                            <button type="button" class="btn btn-primary btn-block" id="btn-generate-pdf">
+                                <i data-lucide="download"></i>
+                                <span>Descargar Reporte PDF</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- PDF Preview Mockup -->
+                    <div class="pdf-preview-card shadow-sm">
+                        <div class="preview-header">
+                            <span class="badge">Previsualización</span>
+                            <span>A4 Estilo Profesional</span>
+                        </div>
+                        <div class="pdf-preview-canvas" id="pdf-preview-area">
+                            <!-- Real-time dynamic PDF HTML preview -->
+                            <div class="pdf-template">
+                                <div class="pdf-header-preview">
+                                    <div class="pdf-brand">
+                                        <div class="logo-icon-sm"><i data-lucide="wallet"></i></div>
+                                        <div>
+                                            <h4 class="pdf-brand-name">FamiliaFin</h4>
+                                            <span class="pdf-sub text-xs">Reporte de Finanzas</span>
+                                        </div>
+                                    </div>
+                                    <div class="pdf-meta-info text-right">
+                                        <div class="pdf-date" id="pdf-date-view">Fecha: --/--/----</div>
+                                        <div class="pdf-period-badge" id="pdf-period-view">Período: Todo</div>
+                                    </div>
+                                </div>
+                                <hr class="pdf-divider">
+                                
+                                <div class="pdf-title-block">
+                                    <h2 id="pdf-preview-title">Reporte de Gastos Familiares</h2>
+                                    <p class="pdf-desc text-muted">Resumen financiero consolidado del hogar.</p>
+                                </div>
+
+                                <div class="pdf-metrics-row">
+                                    <div class="pdf-m-card">
+                                        <span class="pdf-m-lbl text-xs text-muted">Ingresos</span>
+                                        <span class="pdf-m-val text-success" id="pdf-preview-ingresos">$0.00</span>
+                                    </div>
+                                    <div class="pdf-m-card">
+                                        <span class="pdf-m-lbl text-xs text-muted">Gastos</span>
+                                        <span class="pdf-m-val text-danger" id="pdf-preview-gastos">$0.00</span>
+                                    </div>
+                                    <div class="pdf-m-card">
+                                        <span class="pdf-m-lbl text-xs text-muted">Balance</span>
+                                        <span class="pdf-m-val" id="pdf-preview-balance">$0.00</span>
+                                    </div>
+                                </div>
+
+                                <div class="pdf-table-area">
+                                    <h4 class="pdf-section-title">Resumen por Integrante</h4>
+                                    <table class="pdf-preview-table" id="pdf-preview-members-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Miembro</th>
+                                                <th>Ingresos</th>
+                                                <th>Gastos</th>
+                                                <th>Neto</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Dynamically filled -->
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="pdf-table-area">
+                                    <h4 class="pdf-section-title">Gastos por Categoría</h4>
+                                    <div class="pdf-categories-list" id="pdf-preview-categories-list">
+                                        <!-- Dynamically filled -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: Settings -->
+            <section class="tab-content" id="tab-settings">
+                <div class="settings-grid">
+                    <!-- Integrantes Card -->
+                    <div class="settings-card shadow-sm">
+                        <div class="settings-header">
+                            <i data-lucide="users"></i>
+                            <h3>Integrantes de la Familia</h3>
+                        </div>
+                        <p class="text-muted">Configura los nombres de las personas que aportan o gastan en el hogar. Puedes activar un tercer miembro cuando lo necesites.</p>
+                        
+                        <form id="settings-members-form" class="standard-form mt-4">
+                            <div class="form-group">
+                                <label for="m1-name">Integrante 1 (Principal)</label>
+                                <div class="input-with-indicator">
+                                    <span class="dot m1-color"></span>
+                                    <input type="text" id="m1-name" class="form-input" value="Alvaro" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="m2-name">Integrante 2 (Principal)</label>
+                                <div class="input-with-indicator">
+                                    <span class="dot m2-color"></span>
+                                    <input type="text" id="m2-name" class="form-input" value="Bety" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="flex-between">
+                                    <label for="m3-name">Integrante 3 (Opcional)</label>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="m3-enabled">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="input-with-indicator disabled" id="m3-input-wrapper">
+                                    <span class="dot m3-color"></span>
+                                    <input type="text" id="m3-name" class="form-input" value="Integrante 3" disabled>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="flex-between">
+                                    <label for="m4-name">Integrante 4 (Opcional)</label>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="m4-enabled">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="input-with-indicator disabled" id="m4-input-wrapper">
+                                    <span class="dot m4-color"></span>
+                                    <input type="text" id="m4-name" class="form-input" value="Integrante 4" disabled>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Guardar Nombres</button>
+                        </form>
+                    </div>
+
+                    <!-- Categories Card -->
+                    <div class="settings-card shadow-sm">
+                        <div class="settings-header">
+                            <i data-lucide="tag"></i>
+                            <h3>Categorías de Gastos</h3>
+                        </div>
+                        <p class="text-muted">Administra las etiquetas para clasificar tus gastos familiares.</p>
+                        
+                        <div class="categories-list-editor mt-4" id="categories-editor-list">
+                            <!-- Dynamic category list with delete buttons -->
+                        </div>
+
+                        <form id="add-category-form" class="standard-form horizontal mt-4">
+                            <input type="text" id="new-category-name" class="form-input" placeholder="Nueva Categoría (Ej: Vacaciones)" required>
+                            <button type="submit" class="btn btn-secondary">Añadir</button>
+                        </form>
+                    </div>
+
+                    <!-- Backup Card -->
+                    <div class="settings-card shadow-sm full-width-card">
+                        <div class="settings-header">
+                            <i data-lucide="database"></i>
+                            <h3>Respaldar y Restaurar Datos</h3>
+                        </div>
+                        <p class="text-muted">Como los datos se almacenan de forma local en tu navegador, es una buena práctica hacer copias de seguridad de forma periódica en un archivo local para que no pierdas tu información.</p>
+                        
+                        <div class="backup-actions-row mt-4">
+                            <button class="btn btn-secondary" id="btn-export-backup">
+                                <i data-lucide="download-cloud"></i>
+                                <span>Exportar Respaldo (.json)</span>
+                            </button>
+                            
+                            <label class="btn btn-outline" for="input-import-backup">
+                                <i data-lucide="upload-cloud"></i>
+                                <span>Importar Respaldo (.json)</span>
+                                <input type="file" id="input-import-backup" accept=".json" style="display: none;">
+                            </label>
+
+                            <button class="btn btn-warning-outline" id="btn-reset-transactions">
+                                <i data-lucide="refresh-cw"></i>
+                                <span>Reiniciar Gastos (Nueva Contabilidad)</span>
+                            </button>
+
+                            <button class="btn btn-danger-outline" id="btn-reset-data">
+                                <i data-lucide="trash-2"></i>
+                                <span>Borrar Todo</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- TRANSACTION MODAL -->
+    <div class="modal-overlay" id="transaction-modal">
+        <div class="modal shadow-lg">
+            <div class="modal-header">
+                <h3 id="modal-title">Registrar Nueva Operación</h3>
+                <button class="btn-close-modal" id="btn-close-transaction-modal">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <form id="transaction-form" class="standard-form">
+                <!-- Hidden inputs -->
+                <input type="hidden" id="edit-transaction-id">
+
+                <!-- Type Selector (Tab-like design) -->
+                <div class="form-group">
+                    <label>Tipo de Operación</label>
+                    <div class="btn-toggle-group">
+                        <input type="radio" id="type-expense" name="transaction-type" value="expense" checked>
+                        <label for="type-expense" class="toggle-btn">
+                            <i data-lucide="arrow-up-right"></i> Salida (Gasto)
+                        </label>
+                        
+                        <input type="radio" id="type-income" name="transaction-type" value="income">
+                        <label for="type-income" class="toggle-btn">
+                            <i data-lucide="arrow-down-left"></i> Entrada (Ingreso)
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-row-2">
+                    <!-- Amount Input -->
+                    <div class="form-group">
+                        <label for="trans-amount">Monto ($)</label>
+                        <input type="number" id="trans-amount" class="form-input text-lg font-bold" placeholder="0.00" min="0.01" step="0.01" required>
+                    </div>
+
+                    <!-- Date Input -->
+                    <div class="form-group">
+                        <label for="trans-date">Fecha</label>
+                        <input type="date" id="trans-date" class="form-input" required>
+                    </div>
+                </div>
+
+                <div class="form-row-2">
+                    <!-- Contributor Select -->
+                    <div class="form-group">
+                        <label for="trans-member">Integrante Responsable</label>
+                        <select id="trans-member" class="form-input" required>
+                            <option value="1" id="modal-opt-m1">Miembro 1</option>
+                            <option value="2" id="modal-opt-m2">Miembro 2</option>
+                            <option value="3" id="modal-opt-m3" class="hidden">Miembro 3</option>
+                            <option value="4" id="modal-opt-m4" class="hidden">Miembro 4</option>
+                        </select>
+                    </div>
+
+                    <!-- Category Select (Disabled for Incomes) -->
+                    <div class="form-group" id="category-group">
+                        <label for="trans-category">Categoría</label>
+                        <select id="trans-category" class="form-input" required>
+                            <!-- Dynamically loaded -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Description Input -->
+                <div class="form-group">
+                    <label for="trans-desc">Descripción Corta</label>
+                    <input type="text" id="trans-desc" class="form-input" placeholder="Ej: Compra del súper semanal" required>
+                </div>
+
+                <!-- Notes Textarea -->
+                <div class="form-group">
+                    <label for="trans-notes">Notas Adicionales (Opcional)</label>
+                    <textarea id="trans-notes" class="form-input" rows="2" placeholder="Ej: Pagado con efectivo, pendiente reembolsar."></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-transaction">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btn-save-transaction">Guardar Registro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Alert / Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- External CDNs -->
+    <!-- Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide/dist/umd/lucide.min.js"></script>
+    <!-- html2pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <!-- Lógica de la aplicación -->
+    <script src="app.js"></script>
+</body>
+</html>
